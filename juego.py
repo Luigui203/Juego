@@ -5,6 +5,7 @@ import threading
 from Controller.Usuario import Usuario
 
 
+
 # Aseguramos que el nombre de usuario sea pasado correctamente
 if len(sys.argv) > 1:
     nombreUsuario = sys.argv[1]  # Recibir el nombre de usuario desde los argumentos
@@ -32,7 +33,10 @@ jugador_img = pygame.image.load("imagenes\spaceship.png")
 enemigo_img = pygame.image.load("imagenes\enemy.png")
 bala_img = pygame.image.load("imagenes/bullet.png")
 boss_img = pygame.image.load("imagenes/boss.png")
+boss1_img = pygame.image.load("imagenes/boss1.png")
+boss2_img= pygame.image.load("imagenes/dada.png")
 bala_boss_img = pygame.image.load("imagenes/boss_bullet.png")
+
 
 # Cargar sonidos
 sonido_disparo = pygame.mixer.Sound("sonidos\disparo.wav")
@@ -67,7 +71,7 @@ class Jugador(pygame.sprite.Sprite):
 class Enemigo(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.transform.scale(enemigo_img, (40, 40))
+        self.image = pygame.transform.scale(enemigo_img, (90, 90))
         self.rect = self.image.get_rect()
         self.rect.x = random.randint(0, ANCHO - self.rect.width)
         self.rect.y = random.randint(-100, -40)
@@ -92,7 +96,7 @@ class Enemigo(pygame.sprite.Sprite):
 class Bala(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        self.image = pygame.transform.scale(bala_img, (10, 30))
+        self.image = pygame.transform.scale(bala_img, (30, 30))
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.velocidad_y = -10
@@ -105,7 +109,7 @@ class Bala(pygame.sprite.Sprite):
 class Boss(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.transform.scale(boss_img, (150, 100))
+        self.image = pygame.transform.scale(boss_img, (200, 200))
         self.rect = self.image.get_rect()
         self.rect.centerx = ANCHO // 2
         self.rect.top = 10

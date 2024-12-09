@@ -6,9 +6,14 @@ import subprocess  # Para ejecutar el juego
 from Controller.Usuario import Usuario
 from Tooltip import Tooltip
 from View.Registrar import Registrar
+from View.Consultar import ConsultarRanking  # Importamos la clase que muestra el ranking
 
 
 class Loggin():
+
+    def consultarRanking(self):
+        # Llamar a la ventana del ranking
+        ranking_ventana = ConsultarRanking()
 
     def validarCampos(self, event):
         if len(self.txtUsuario.get()) >= 5 and len(self.txtPassword.get()) >= 5:
@@ -109,6 +114,10 @@ class Loggin():
 
         self.btnRegistrar = tk.Button(self.ventana, text="Registrarse", command=self.abrir_ventana_registro)
         self.btnRegistrar.place(x=320, y=275, width=70, height=25)
+
+        # Botón de Consultar Ranking
+        self.btnRanking = tk.Button(self.ventana, text="Consultar Ranking", command=self.consultarRanking)
+        self.btnRanking.place(x=140, y=225, width=150, height=25)
 
         self.ventana.mainloop()
 

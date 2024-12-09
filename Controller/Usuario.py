@@ -121,3 +121,29 @@ class Usuario():
             cursor.close()
             con.close()
 
+    def consultarRanking(self):
+        """
+        Recupera el ranking de los jugadores, ordenado por el puntaje.
+        :return: Lista de jugadores con sus puntajes.
+        """
+        miConexion = ConexionDB()
+        miConexion.crearConexion()
+        con = miConexion.getConection()
+        cursor = con.cursor()
+
+        try:
+            cursor.execute("""
+                SELECT jugador.nombre, puntuaciones.puntaje
+                FROM jugador
+                JOIN puntuaciones ON jugador.id = puntuaciones.id_jugador
+                ORDER BY puntuaciones.puntaje DESC
+            """)
+            ranking = cursor.fetchall()
+            return ranking
+        except Exception as e:
+            print(f"Error al consultar el ranking: {e}")
+            return []
+        finally:
+            cursor.close()
+            con.close()
+
