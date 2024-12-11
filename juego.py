@@ -1,10 +1,154 @@
 import pygame
-import random
 import sys
+import random
 import threading
 from Controller.Usuario import Usuario
 
+# Inicialización de Pygame
+pygame.init()
 
+# Configuración de pantalla
+ANCHO = 800
+ALTO = 600
+pantalla = pygame.display.set_mode((ANCHO, ALTO))
+pygame.display.set_caption("Galaga con Jefes")
+
+# Colores
+NEGRO = (0, 0, 0)
+BLANCO = (255, 255, 255)
+AZUL = (0, 122, 255)
+ROJO = (255, 0, 0)
+VIOLETA = (138, 43, 226)
+NEON = (216, 191, 216)  # Color para el bordeado de neón
+
+# Cargar imagen de fondo
+fondo_menu = pygame.image.load("imagenes/menu.png")
+fondo_menu = pygame.transform.scale(fondo_menu, (ANCHO, ALTO))
+
+# Cargar imagen de controles
+imagen_controles = pygame.image.load("imagenes/menu.png")
+imagen_controles = pygame.transform.scale(imagen_controles, (ANCHO, ALTO))
+
+# Fuente para el texto con estilo retro
+fuente = pygame.font.Font(pygame.font.match_font('pressstart2p', False), 24)
+
+# Fuente más grande para el título
+titulo_fuente = pygame.font.Font(pygame.font.match_font('pressstart2p', False), 48)
+
+# Función para dibujar texto en pantalla
+def dibujar_texto(superficie, texto, x, y, color=BLANCO, fuente=fuente):
+    texto_surface = fuente.render(texto, True, color)
+    rect = texto_surface.get_rect(center=(x, y))
+    superficie.blit(texto_surface, rect)
+
+# Función para dibujar un botón con efecto de neón
+def dibujar_boton_con_neon(superficie, rect, texto, color_boton, color_texto):
+    # Dibujar el efecto de neón (bordes alrededor del botón)
+    for grosor in range(8, 0, -2):  # Bordes decrecientes
+        pygame.draw.rect(superficie, NEON, rect.inflate(grosor, grosor), width=1)
+    # Dibujar el botón
+    pygame.draw.rect(superficie, color_boton, rect)
+    # Dibujar el texto
+    dibujar_texto(superficie, texto, rect.centerx, rect.centery, color_texto)
+
+# Función para el menú principal
+def menu_principal():
+    while True:
+        # Dibujar imagen de fondo
+        pantalla.blit(fondo_menu, (0, 0))
+
+        # Dibujar el título
+        dibujar_texto(pantalla, "Space Mania", ANCHO // 2, 100, BLANCO, titulo_fuente)
+
+        # Definir los botones
+        boton_play = pygame.Rect(ANCHO // 2 - 100, 200, 200, 50)
+        boton_controles = pygame.Rect(ANCHO // 2 - 100, 300, 200, 50)
+        boton_exit = pygame.Rect(ANCHO // 2 - 100, 400, 200, 50)
+
+        # Dibujar botones con efecto de neón
+        dibujar_boton_con_neon(pantalla, boton_play, "Play", VIOLETA, BLANCO)
+        dibujar_boton_con_neon(pantalla, boton_controles, "Controles", VIOLETA, BLANCO)
+        dibujar_boton_con_neon(pantalla, boton_exit, "Exit", VIOLETA, BLANCO)
+
+        # Detectar eventos
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            elif evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1:
+                if boton_play.collidepoint(evento.pos):
+                    return  # Salir del menú y comenzar el juego principal
+                elif boton_controles.collidepoint(evento.pos):
+                    mostrar_controles()
+                elif boton_exit.collidepoint(evento.pos):
+                    pygame.quit()
+                    sys.exit()
+
+        pygame.display.flip()
+
+
+# Fuente más pequeña y en negrita para los controles
+texto_fuente = pygame.font.SysFont("Arial", 24, bold=True)
+
+# Función para dibujar el texto con negrita
+def dibujar_texto_negrita(surface, texto, x, y, color, fuente):
+    texto_renderizado = fuente.render(texto, True, color)
+    surface.blit(texto_renderizado, (x, y))
+
+# Función para mostrar la pantalla de controles
+def mostrar_controles():
+    mostrando = True
+    while mostrando:
+        pantalla.fill(NEGRO)
+
+        # Dibujar el título de la sección de controles alineado a la izquierda
+        dibujar_texto_negrita(pantalla, "CONTROLES", 20, 50, AZUL, titulo_fuente)
+
+        # Dibujar imagen de controles con el mismo tamaño de la ventana
+        pantalla.blit(imagen_controles, (0, 0))  # Aquí no se escala, se coloca tal cual
+
+        # Instrucciones de controles
+        instrucciones = [
+            ("Mover: Flecha derecha / Flecha izquierda", (20, 150)),
+            ("Pausar: ESC", (20, 200)),
+            ("Disparar: Barra espaciadora", (20, 250))
+        ]
+        
+        # Organizar el texto de forma más clara, con mayor separación
+        espacio = 50  # Espacio entre líneas
+        for i, (texto, pos) in enumerate(instrucciones):
+            # Colocar el texto con el índice (i) para separar mejor las instrucciones
+            dibujar_texto_negrita(pantalla, texto, pos[0], pos[1] + i * espacio, BLANCO, texto_fuente)
+
+        # Dibujar el botón para regresar más abajo
+        boton_regresar = pygame.Rect(pantalla.get_width() // 2 - 100, 420, 200, 50)  # Ajuste en la posición vertical
+        dibujar_boton_con_neon(pantalla, boton_regresar, "Regresar (Esc)", VIOLETA, BLANCO)
+
+        # Detectar eventos
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1:
+                if boton_regresar.collidepoint(evento.pos):
+                    mostrando = False
+            elif evento.type == pygame.KEYDOWN:
+                if evento.key == pygame.K_ESCAPE:
+                    mostrando = False
+
+        pygame.display.flip()
+
+
+
+# Llamar al menú principal antes de iniciar el juego
+menu_principal()
+
+
+# Aquí comienza el juego principal, reemplaza con el código existente del juego
+# Por ejemplo:
+def juego_principal():
+    print("Ejecutando juego principal...")
 
 # Aseguramos que el nombre de usuario sea pasado correctamente
 if len(sys.argv) > 1:
@@ -172,7 +316,7 @@ def actualizar_enemigos():
         enemigos.update()
         pygame.time.delay(30)  # Controla la velocidad del hilo
 
-# Función para mostrar mensaje de fin de juego
+
 # Función para mostrar mensaje de fin de juego
 def mostrar_mensaje_fin(pantalla, texto, puntuacion):
     pantalla.fill(NEGRO)  # Limpiar la pantalla
@@ -187,12 +331,17 @@ def mostrar_mensaje_fin(pantalla, texto, puntuacion):
     rect_puntuacion = texto_puntuacion.get_rect(center=(ANCHO // 2, ALTO // 2 + 20))
     pantalla.blit(texto_puntuacion, rect_puntuacion)
 
-    # Mostrar opciones para salir o reiniciar
+    # Mostrar opciones para salir, reiniciar o regresar al menú
     fuente_opciones = pygame.font.SysFont("Arial", 24)
     texto_salir = fuente_opciones.render("Presiona 'Q' para salir o 'R' para reiniciar", True, BLANCO)
     pantalla.blit(texto_salir, (ANCHO // 2 - 200, ALTO // 2 + 60))
 
+    # Mensaje adicional para regresar al menú
+    texto_menu = fuente_opciones.render("Presiona 'ESC' para volver al Menú Principal", True, BLANCO)
+    pantalla.blit(texto_menu, (ANCHO // 2 - 200, ALTO // 2 + 100))
+
     pygame.display.flip()  # Actualizar la pantalla
+
 
 
 # Función para mostrar las vidas como corazones
@@ -362,7 +511,6 @@ while ejecutando:
         # Mostrar vidas como corazones
         mostrar_vidas(pantalla, vidas)
 
-
         # Actualizar la pantalla
         pygame.display.flip()
 
@@ -385,3 +533,15 @@ while ejecutando:
             reiniciar_juego()
             jugando = True
             sonido_game_over_reproducido = False  # Restablecer el estado para permitir que el sonido se reproduzca la próxima vez
+
+        elif tecla[pygame.K_ESCAPE]:  # Volver al menú principal
+            menu_principal()
+            reiniciar_juego()  # Reinicia las variables del juego
+            jugando = True
+            sonido_game_over_reproducido = False
+# Ejecutar el juego principal
+juego_principal()
+
+
+
+
