@@ -68,7 +68,7 @@ class Usuario():
                         print(f"El puntaje {puntaje} no supera el puntaje actual de {puntaje_actual}. No se actualizó.")
                 else:
                     # Si no hay puntaje previo, se inserta uno nuevo con la fecha actual
-                    fecha_actual = datetime.datetime.now()  # Fecha y hora actuales
+                    fecha_actual = datetime.datetime.now()  # Fecha y hora actuales.
                     cursor.execute(
                         "INSERT INTO puntuaciones (id_jugador, puntaje, fecha) VALUES (%s, %s, %s)",
                         (id_jugador, puntaje, fecha_actual)
