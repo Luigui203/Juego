@@ -4,12 +4,34 @@ from tkinter import messagebox as mb
 import datetime
 
 class Usuario():
+    """
+    Clase que representa a un usuario del juego.
+    Permite gestionar las acciones de inicio de sesión, creación de usuario, 
+    y el manejo de puntajes (guardar y consultar).
+
+    Atributos:
+        nombre: Nombre del usuario.
+        correo: Correo electrónico del usuario.
+        clave: Contraseña del usuario.
+    """
+
     def __init__(self):
+        """
+        Inicializa un objeto Usuario.
+        """
         self.nombre = None
         self.correo = None
         self.clave = None
 
     def iniciarSesion(self, nombreUsuario, password, loggin):
+        """
+        Permite iniciar sesión en el sistema con un nombre de usuario y una contraseña.
+        
+        :param nombreUsuario: Nombre del usuario para iniciar sesión.
+        :param password: Contraseña del usuario.
+        :param loggin: El objeto o función encargada de gestionar la interfaz de inicio de sesión.
+        :return: True si las credenciales son correctas, False si no lo son.
+        """
         miConexion = ConexionDB()
         miConexion.crearConexion()
         con = miConexion.getConection()
@@ -37,6 +59,13 @@ class Usuario():
 
 
     def guardarPuntaje(self, nombreUsuario, puntaje):
+        """
+        Guarda o actualiza el puntaje del usuario en la base de datos.
+        Si el nuevo puntaje es mayor que el anterior, se actualiza la fecha y el puntaje.
+
+        :param nombreUsuario: Nombre del usuario para el cual se va a guardar el puntaje.
+        :param puntaje: Puntaje obtenido por el usuario.
+        """
         miConexion = ConexionDB()
         miConexion.crearConexion()
         con = miConexion.getConection()
@@ -86,8 +115,9 @@ class Usuario():
 
     def crearUsuario(self, nombreUsuario, correo, password):
         """
-        Crea un nuevo usuario en la base de datos si no existe.
-        
+        Crea un nuevo usuario en la base de datos si no existe. Verifica que el correo y 
+        el nombre de usuario no estén en uso antes de proceder.
+
         :param nombreUsuario: Nombre del usuario.
         :param correo: Correo electrónico del usuario.
         :param password: Contraseña del usuario.
@@ -116,7 +146,7 @@ class Usuario():
             # Insertar el nuevo usuario
             cursor.execute(
                 "INSERT INTO jugador (nombre, correo, clave) VALUES (%s, %s, %s)",
-                (nombreUsuario, correo, password)  # Recuerda que la clave debe estar encriptada
+                (nombreUsuario, correo, password)  
             )
             con.commit()
             return f"Usuario '{nombreUsuario}' creado exitosamente."
@@ -129,7 +159,8 @@ class Usuario():
     def consultarRanking(self):
         """
         Recupera el ranking de los jugadores, ordenado por el puntaje.
-        :return: Lista de jugadores con sus puntajes.
+        
+        :return: Lista de jugadores con sus puntajes, ordenada de mayor a menor puntaje.
         """
         miConexion = ConexionDB()
         miConexion.crearConexion()
@@ -151,4 +182,3 @@ class Usuario():
         finally:
             cursor.close()
             con.close()
-

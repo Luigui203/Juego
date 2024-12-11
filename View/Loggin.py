@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import *
 from tkinter import messagebox
-import winsound
 import subprocess  # Para ejecutar el juego
 from Controller.Usuario import Usuario
 from Tooltip import Tooltip
@@ -30,10 +29,7 @@ class Loggin():
         caracter = event.keysym
         if caracter.isalpha() or caracter == '.' or caracter == "BackSpace":
             self.txtUsuario.config(bg="#ffffff", fg="#000000")
-        else:
-            self.txtUsuario.config(bg="#f5b7b1", fg="#e74c3c")
-            winsound.Beep(1700, 333)
-
+        
     def verCaracteres(self, event):
         if self.bandera == True:
             self.txtPassword.config(show='*')
