@@ -30,6 +30,8 @@ BLANCO = (255, 255, 255)
 
 # Cargar imágenes
 jugador_img = pygame.image.load("imagenes\spaceship.png")
+corazon_img = pygame.image.load("imagenes/corazon.png")  # Asegúrate de tener esta imagen
+corazon_img = pygame.transform.scale(corazon_img, (30, 30))  # Ajustar tamaño
 enemigo_img = pygame.image.load("imagenes\enemy.png")
 bala_img = pygame.image.load("imagenes/bullet.png")
 boss_img = pygame.image.load("imagenes/boss.png")
@@ -38,12 +40,21 @@ boss2_img= pygame.image.load("imagenes/dada.png")
 bala_boss_img = pygame.image.load("imagenes/boss_bullet.png")
 
 
+
 # Cargar sonidos
 sonido_disparo = pygame.mixer.Sound("sonidos\disparo.wav")
 sonido_impacto = pygame.mixer.Sound("sonidos\impacto.wav")
 sonido_boss_disparo = pygame.mixer.Sound("sonidos/boss_disparo.wav")
 sonido_game_over = pygame.mixer.Sound("sonidos\game_over.wav")
 sonido_ambiente = pygame.mixer.Sound("sonidos\sonido_fondo.wav")
+
+# Ajustar volumen de los sonidos
+sonido_disparo.set_volume(0.2)  # Disparo a la mitad del volumen
+sonido_impacto.set_volume(0.5)  # Impacto un poco más alto
+sonido_boss_disparo.set_volume(0.2)  # Disparo del jefe más bajo
+sonido_game_over.set_volume(0.8)  # Game over a volumen medio
+sonido_ambiente.set_volume(0.6)  # Sonido ambiente mucho más bajo
+
 
 # Clases del juego
 class Jugador(pygame.sprite.Sprite):
@@ -162,17 +173,34 @@ def actualizar_enemigos():
         pygame.time.delay(30)  # Controla la velocidad del hilo
 
 # Función para mostrar mensaje de fin de juego
-def mostrar_mensaje_fin(pantalla, texto):
+# Función para mostrar mensaje de fin de juego
+def mostrar_mensaje_fin(pantalla, texto, puntuacion):
+    pantalla.fill(NEGRO)  # Limpiar la pantalla
     fuente = pygame.font.SysFont("Arial", 36)
     texto_surface = fuente.render(texto, True, BLANCO)
-    rect = texto_surface.get_rect(center=(ANCHO // 2, ALTO // 2))
+    rect = texto_surface.get_rect(center=(ANCHO // 2, ALTO // 2 - 40))  # Ajustar para que esté centrado
     pantalla.blit(texto_surface, rect)
-    pygame.display.flip()
+
+    # Mostrar la puntuación final
+    fuente_puntuacion = pygame.font.SysFont("Arial", 24)
+    texto_puntuacion = fuente_puntuacion.render(f"Puntuación Final: {puntuacion}", True, BLANCO)
+    rect_puntuacion = texto_puntuacion.get_rect(center=(ANCHO // 2, ALTO // 2 + 20))
+    pantalla.blit(texto_puntuacion, rect_puntuacion)
 
     # Mostrar opciones para salir o reiniciar
     fuente_opciones = pygame.font.SysFont("Arial", 24)
     texto_salir = fuente_opciones.render("Presiona 'Q' para salir o 'R' para reiniciar", True, BLANCO)
-    pantalla.blit(texto_salir, (ANCHO // 2 - 200, ALTO // 2 + 40))
+    pantalla.blit(texto_salir, (ANCHO // 2 - 200, ALTO // 2 + 60))
+
+    pygame.display.flip()  # Actualizar la pantalla
+
+
+# Función para mostrar las vidas como corazones
+def mostrar_vidas(pantalla, vidas):
+    for i in range(vidas):
+        x = 10 + i * 35  # Espaciado entre corazones
+        pantalla.blit(corazon_img, (x, 40))
+
 
 # Función para reiniciar el juego
 def reiniciar_juego():
@@ -263,7 +291,7 @@ while ejecutando:
     for evento in pygame.event.get():
         if evento.type == pygame.QUIT:
             ejecutando = False
-            cerrar_juego(puntuacion,nombreUsuario)
+            cerrar_juego(puntuacion, nombreUsuario)
 
         elif evento.type == pygame.KEYDOWN:
             if evento.key == pygame.K_SPACE and jugando:
@@ -295,7 +323,7 @@ while ejecutando:
             vidas -= 1
             if vidas <= 0:
                 jugando = False
-                mostrar_mensaje_fin(pantalla, "¡GAME OVER!")
+                mostrar_mensaje_fin(pantalla, "¡GAME OVER!", puntuacion)  # Llamar con la puntuación final
 
         # Colisiones entre balas del jefe y jugador
         colisiones_boss = pygame.sprite.spritecollide(jugador, balas_boss, True)
@@ -303,7 +331,7 @@ while ejecutando:
             vidas -= 1
             if vidas <= 0:
                 jugando = False
-                mostrar_mensaje_fin(pantalla, "¡GAME OVER!")
+                mostrar_mensaje_fin(pantalla, "¡GAME OVER!", puntuacion)  # Llamar con la puntuación final
 
         # Colisiones entre balas y el jefe
         if jefe_aparecido:
@@ -326,12 +354,14 @@ while ejecutando:
         pantalla.fill(NEGRO)
         todas_las_sprites.draw(pantalla)
 
-        # Mostrar puntuación y vidas
+        # Mostrar puntuación
         fuente = pygame.font.SysFont("Arial", 24)
         texto_puntuacion = fuente.render(f"Puntuación: {puntuacion}", True, BLANCO)
         pantalla.blit(texto_puntuacion, (10, 10))
-        texto_vidas = fuente.render(f"Vidas: {vidas}", True, BLANCO)
-        pantalla.blit(texto_vidas, (10, 40))
+
+        # Mostrar vidas como corazones
+        mostrar_vidas(pantalla, vidas)
+
 
         # Actualizar la pantalla
         pygame.display.flip()
@@ -340,7 +370,8 @@ while ejecutando:
         reloj.tick(60)
 
     else:
-        mostrar_mensaje_fin(pantalla, "¡GAME OVER!")
+        # Mostrar mensaje de game over con la puntuación final
+        mostrar_mensaje_fin(pantalla, "¡GAME OVER!", puntuacion)
         # Reproducir sonido solo si no se ha reproducido antes
         if not sonido_game_over_reproducido:
             sonido_game_over.play()
@@ -354,7 +385,3 @@ while ejecutando:
             reiniciar_juego()
             jugando = True
             sonido_game_over_reproducido = False  # Restablecer el estado para permitir que el sonido se reproduzca la próxima vez
-            
-
-    
-   
