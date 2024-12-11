@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from Controller.Usuario import Usuario
+import mariadb
 
 class Registrar:
     def __init__(self):
@@ -43,25 +44,43 @@ class Registrar:
         correo = self.txtCorreo.get()
         password = self.txtPassword.get()
 
+        # Verificar si todos los campos están completos
         if not nombre or not correo or not password:
             messagebox.showerror("Error", "Por favor, complete todos los campos.")
             return
-        
+
+        # Validar el formato del correo electrónico
         if "@" not in correo or "." not in correo:
             messagebox.showerror("Error", "El correo no es válido.")
             return
-        
-        miUsuario = Usuario()
-        resultado = miUsuario.crearUsuario(nombre, correo, password)
 
-        if "exitosamente" in resultado:
-            messagebox.showinfo("Éxito", resultado)
-            self.ventana.destroy()  # Cerrar la ventana de registro
-            from View.Loggin import Loggin  # Importa Loggin para volver a la ventana de login
-            login = Loggin()  # Crear nueva instancia de Loggin
-            login.ventana.mainloop()  # Ejecutar el mainloop de la nueva ventana de login
-        else:
-            messagebox.showerror("Error", resultado)
+        # Validar longitud mínima del nombre de usuario y contraseña
+        if len(nombre) < 5:
+            messagebox.showerror("Error", "El nombre de usuario debe tener al menos 5 caracteres.")
+            return
+
+        if len(password) < 5:
+            messagebox.showerror("Error", "La contraseña debe tener al menos 5 caracteres.")
+            return
+
+        miUsuario = Usuario()
+        
+        try:
+            resultado = miUsuario.crearUsuario(nombre, correo, password)
+            
+            if "exitosamente" in resultado:
+                messagebox.showinfo("Éxito", resultado)
+                self.ventana.destroy()  # Cerrar la ventana de registro
+                from View.Loggin import Loggin  # Importa Loggin para volver a la ventana de login
+                login = Loggin()  # Crear nueva instancia de Loggin
+                login.ventana.mainloop()  # Ejecutar el mainloop de la nueva ventana de login
+            else:
+                messagebox.showerror("Error", resultado)
+        except mariadb.OperationalError:
+            messagebox.showerror("Error", "No se pudo conectar a la base de datos. Verifique su conexión e inténtelo nuevamente.")
+        except Exception as e:
+            messagebox.showerror("Error", f"Ocurrió un error inesperado: {e}")
+
 
     def volver_login(self):
         self.ventana.destroy()

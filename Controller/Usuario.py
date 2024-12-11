@@ -1,7 +1,6 @@
 from Model.ConexionDB import ConexionDB
 import tkinter as tk
 from tkinter import messagebox as mb
-import datetime
 
 class Usuario():
     def __init__(self):
@@ -35,7 +34,6 @@ class Usuario():
             cursor.close()
             con.close()
 
-
     def guardarPuntaje(self, nombreUsuario, puntaje):
         miConexion = ConexionDB()
         miConexion.crearConexion()
@@ -57,24 +55,22 @@ class Usuario():
                     puntaje_actual = puntaje_actual[0]
                     # Verificar si el nuevo puntaje es mayor
                     if puntaje > puntaje_actual:
-                        fecha_actual = datetime.datetime.now()  # Fecha y hora actuales
                         cursor.execute(
-                            "UPDATE puntuaciones SET puntaje = %s, fecha = %s WHERE id_jugador = %s",
-                            (puntaje, fecha_actual, id_jugador)
+                            "UPDATE puntuaciones SET puntaje = %s WHERE id_jugador = %s",
+                            (puntaje, id_jugador)
                         )
                         con.commit()  # Confirmar cambios
-                        print(f"Puntaje y fecha actualizados para {nombreUsuario}: {puntaje}, Fecha: {fecha_actual}")
+                        print(f"Puntaje actualizado para {nombreUsuario}: {puntaje}")
                     else:
                         print(f"El puntaje {puntaje} no supera el puntaje actual de {puntaje_actual}. No se actualizó.")
                 else:
-                    # Si no hay puntaje previo, se inserta uno nuevo con la fecha actual
-                    fecha_actual = datetime.datetime.now()  # Fecha y hora actuales.
+                    # Si no hay puntaje previo, se inserta uno nuevo
                     cursor.execute(
-                        "INSERT INTO puntuaciones (id_jugador, puntaje, fecha) VALUES (%s, %s, %s)",
-                        (id_jugador, puntaje, fecha_actual)
+                        "INSERT INTO puntuaciones (id_jugador, puntaje) VALUES (%s, %s)",
+                        (id_jugador, puntaje)
                     )
                     con.commit()
-                    print(f"Primer puntaje registrado para {nombreUsuario}: {puntaje}, Fecha: {fecha_actual}")
+                    print(f"Primer puntaje registrado para {nombreUsuario}: {puntaje}")
             else:
                 print(f"Jugador con nombre {nombreUsuario} no encontrado")
         except Exception as e:
@@ -82,7 +78,6 @@ class Usuario():
         finally:
             cursor.close()
             con.close()
-
 
     def crearUsuario(self, nombreUsuario, correo, password):
         """

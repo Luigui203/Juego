@@ -1,19 +1,22 @@
 import tkinter as tk
 from tkinter import *
 from tkinter import messagebox
-import winsound
 import subprocess  # Para ejecutar el juego
 from Controller.Usuario import Usuario
 from Tooltip import Tooltip
 from View.Registrar import Registrar
 from View.Consultar import ConsultarRanking  # Importamos la clase que muestra el ranking
+import mariadb
 
 
 class Loggin():
 
     def consultarRanking(self):
-        # Llamar a la ventana del ranking
-        ranking_ventana = ConsultarRanking()
+        try:
+            # Llamar a la ventana del ranking
+            ranking_ventana = ConsultarRanking()
+        except mariadb.OperationalError:
+            messagebox.showerror("Error", "No se pudo conectar a la base de datos. Verifique su conexión e inténtelo nuevamente.")
 
     def validarCampos(self, event):
         if len(self.txtUsuario.get()) >= 5 and len(self.txtPassword.get()) >= 5:
@@ -30,10 +33,7 @@ class Loggin():
         caracter = event.keysym
         if caracter.isalpha() or caracter == '.' or caracter == "BackSpace":
             self.txtUsuario.config(bg="#ffffff", fg="#000000")
-        else:
-            self.txtUsuario.config(bg="#f5b7b1", fg="#e74c3c")
-            winsound.Beep(1700, 333)
-
+        
     def verCaracteres(self, event):
         if self.bandera == True:
             self.txtPassword.config(show='*')
@@ -45,12 +45,21 @@ class Loggin():
             self.bandera = True
 
     def ingresar(self, event):
-        # Asegúrate de que el nombre de usuario y la contraseña sean válidos
-        miUsuario = Usuario()
-        usuario = self.txtUsuario.get()  # Acceder al nombre de usuario antes de cerrar la ventana
-        if miUsuario.iniciarSesion(usuario, self.txtPassword.get(), self.ventana):
-            self.ventana.destroy()  # Cerrar la ventana de login solo después de validación
-            self.iniciar_juego(usuario)  # Pasar el nombre de usuario al iniciar el juego
+        try:
+            # Asegúrate de que el nombre de usuario y la contraseña sean válidos
+            miUsuario = Usuario()
+            usuario = self.txtUsuario.get()  # Acceder al nombre de usuario antes de cerrar la ventana
+
+            if miUsuario.iniciarSesion(usuario, self.txtPassword.get(), self.ventana):
+                self.ventana.destroy()  # Cerrar la ventana de login solo después de validación
+                self.iniciar_juego(usuario)  # Pasar el nombre de usuario al iniciar el juego
+            else:
+                # Advertencia si las credenciales son incorrectas
+                messagebox.showwarning("Advertencia", "Usuario o contraseña incorrectos.")
+        except Exception as e:
+            # Manejar cualquier error inesperado
+            messagebox.showerror("Error", f"Ocurrió un error al intentar ingresar: {e}")
+
         
     def iniciar_juego(self, nombreUsuario):
         # Ejecutar juego.py y pasar el nombre de usuario como argumento
@@ -91,14 +100,11 @@ class Loggin():
         self.txtUsuario.place(x=190, y=125, width=150, height=25)
         self.txtUsuario.bind("<KeyRelease>", self.validarCampos)
         self.txtUsuario.bind("<Key>", self.validarUsuario)
-        Tooltip(self.txtUsuario, "Ingrese su nombre de Ususrio, solo letras minúsculas.\nmin 5 caracteres, max 25 caracteres")
+        Tooltip(self.txtUsuario, "Ingrese su nombre de Usuario.\nmin 5 caracteres.")
 
         self.txtPassword = tk.Entry(self.ventana, show="*")
         self.txtPassword.place(x=190, y=200, width=150, height=25)
         self.txtPassword.bind("<KeyRelease>", self.validarCampos)
-
-        self.btnAyuda = tk.Button(self.ventana, text="Ayuda")
-        self.btnAyuda.place(x=320, y=50)
 
         self.btnIngresar = tk.Button(self.ventana, text="Ingresar", state="disabled")
         self.btnIngresar.place(x=140, y=275, width=70, height=25)

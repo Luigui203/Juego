@@ -111,8 +111,7 @@ def mostrar_controles():
         # Instrucciones de controles
         instrucciones = [
             ("Mover: Flecha derecha / Flecha izquierda", (20, 150)),
-            ("Pausar: ESC", (20, 200)),
-            ("Disparar: Barra espaciadora", (20, 250))
+            ("Disparar: Barra espaciadora", (20, 175))
         ]
         
         # Organizar el texto de forma más clara, con mayor separación
@@ -525,22 +524,37 @@ while ejecutando:
             sonido_game_over.play()
             sonido_game_over_reproducido = True  # Marcar que el sonido ya se ha reproducido
 
-        tecla = pygame.key.get_pressed()
-        if tecla[pygame.K_q]:
-            ejecutando = False
-            cerrar_juego(puntuacion, nombreUsuario)
-        elif tecla[pygame.K_r]:
-            reiniciar_juego()
-            jugando = True
-            sonido_game_over_reproducido = False  # Restablecer el estado para permitir que el sonido se reproduzca la próxima vez
-
-        elif tecla[pygame.K_ESCAPE]:  # Volver al menú principal
-            menu_principal()
-            reiniciar_juego()  # Reinicia las variables del juego
-            jugando = True
-            sonido_game_over_reproducido = False
+        for evento in pygame.event.get():
+            if evento.type == pygame.KEYDOWN:
+                if evento.key == pygame.K_q:  # Salir del juego
+                    ejecutando = False
+                    cerrar_juego(puntuacion, nombreUsuario)
+                elif evento.key == pygame.K_r:  # Reiniciar el juego
+                    reiniciar_juego()
+                    jugando = True
+                    puntuacion = 0  # Reiniciar puntuación
+                    vidas = 3  # Reiniciar vidas
+                    jefe_aparecido = False  # Reiniciar estado del jefe
+                    sonido_game_over_reproducido = False  # Restablecer el estado para permitir que el sonido se reproduzca la próxima vez
+                    todas_las_sprites.empty()  # Limpiar todos los sprites
+                    enemigos.empty()  # Limpiar todos los enemigos
+                    balas.empty()  # Limpiar todas las balas
+                    jugador = Jugador()  # Crear un nuevo jugador
+                    todas_las_sprites.add(jugador)
+                    # Reagregar enemigos iniciales
+                    for _ in range(8):
+                        enemigo = Enemigo()
+                        todas_las_sprites.add(enemigo)
+                        enemigos.add(enemigo)
+                elif evento.key == pygame.K_ESCAPE:  # Volver al menú principal
+                     
+                    menu_principal()
+                    reiniciar_juego()  # Reinicia las variables del juego
+                    jugando = True
+                    sonido_game_over_reproducido = False
 # Ejecutar el juego principal
 juego_principal()
+
 
 
 
