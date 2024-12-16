@@ -8,12 +8,12 @@ from Controller.Usuario import Usuario
 pygame.init()
 
 # Configuración de pantalla
-ANCHO = 800
-ALTO = 600
-pantalla = pygame.display.set_mode((ANCHO, ALTO))
-pygame.display.set_caption("Galaga con Jefes")
+ANCHO = 800  # Ancho de la ventana
+ALTO = 600  # Alto de la ventana
+pantalla = pygame.display.set_mode((ANCHO, ALTO))  # Crea la ventana de juego con el tamaño especificado
+pygame.display.set_caption("Galaga con Jefes")  # Título de la ventana
 
-# Colores
+# Definición de colores
 NEGRO = (0, 0, 0)
 BLANCO = (255, 255, 255)
 AZUL = (0, 122, 255)
@@ -21,46 +21,55 @@ ROJO = (255, 0, 0)
 VIOLETA = (138, 43, 226)
 NEON = (216, 191, 216)  # Color para el bordeado de neón
 
-# Cargar imagen de fondo
-fondo_menu = pygame.image.load("imagenes/menu.png")
-fondo_menu = pygame.transform.scale(fondo_menu, (ANCHO, ALTO))
+# Cargar imágenes
+fondo_menu = pygame.image.load("imagenes/menu.png")  # Carga la imagen del fondo del menú
+fondo_menu = pygame.transform.scale(fondo_menu, (ANCHO, ALTO))  # Redimensiona la imagen al tamaño de la ventana
 
-# Cargar imagen de controles
-imagen_controles = pygame.image.load("imagenes/menu.png")
-imagen_controles = pygame.transform.scale(imagen_controles, (ANCHO, ALTO))
+imagen_controles = pygame.image.load("imagenes/menu.png")  # Carga la imagen para la pantalla de controles
+imagen_controles = pygame.transform.scale(imagen_controles, (ANCHO, ALTO))  # Redimensiona la imagen
 
-# Fuente para el texto con estilo retro
-fuente = pygame.font.Font(pygame.font.match_font('pressstart2p', False), 24)
-
-# Fuente más grande para el título
-titulo_fuente = pygame.font.Font(pygame.font.match_font('pressstart2p', False), 48)
+# Fuentes para el texto
+fuente = pygame.font.Font(pygame.font.match_font('pressstart2p', False), 24)  # Fuente retro para texto normal
+titulo_fuente = pygame.font.Font(pygame.font.match_font('pressstart2p', False), 48)  # Fuente más grande para el título
 
 # Función para dibujar texto en pantalla
 def dibujar_texto(superficie, texto, x, y, color=BLANCO, fuente=fuente):
+    """
+    Función que dibuja el texto en la pantalla en la posición (x, y) con el color y fuente especificados.
+    """
     texto_surface = fuente.render(texto, True, color)
-    rect = texto_surface.get_rect(center=(x, y))
-    superficie.blit(texto_surface, rect)
+    rect = texto_surface.get_rect(center=(x, y))  # Centra el texto en la posición dada
+    superficie.blit(texto_surface, rect)  # Dibuja el texto en la superficie
 
 # Función para dibujar un botón con efecto de neón
 def dibujar_boton_con_neon(superficie, rect, texto, color_boton, color_texto):
+    """
+    Función que dibuja un botón con un efecto de neón (bordes alrededor del botón) y el texto centrado.
+    """
     # Dibujar el efecto de neón (bordes alrededor del botón)
     for grosor in range(8, 0, -2):  # Bordes decrecientes
         pygame.draw.rect(superficie, NEON, rect.inflate(grosor, grosor), width=1)
+    
     # Dibujar el botón
     pygame.draw.rect(superficie, color_boton, rect)
-    # Dibujar el texto
+    
+    # Dibujar el texto en el centro del botón
     dibujar_texto(superficie, texto, rect.centerx, rect.centery, color_texto)
 
 # Función para el menú principal
 def menu_principal():
+    """
+    Función que dibuja el menú principal del juego con las opciones: 'Play', 'Controles' y 'Exit'.
+    Detecta clics del usuario para elegir entre las opciones.
+    """
     while True:
         # Dibujar imagen de fondo
         pantalla.blit(fondo_menu, (0, 0))
 
-        # Dibujar el título
+        # Dibujar el título en la parte superior
         dibujar_texto(pantalla, "Space Mania", ANCHO // 2, 100, BLANCO, titulo_fuente)
 
-        # Definir los botones
+        # Definir los rectángulos de los botones
         boton_play = pygame.Rect(ANCHO // 2 - 100, 200, 200, 50)
         boton_controles = pygame.Rect(ANCHO // 2 - 100, 300, 200, 50)
         boton_exit = pygame.Rect(ANCHO // 2 - 100, 400, 200, 50)
@@ -70,83 +79,84 @@ def menu_principal():
         dibujar_boton_con_neon(pantalla, boton_controles, "Controles", VIOLETA, BLANCO)
         dibujar_boton_con_neon(pantalla, boton_exit, "Exit", VIOLETA, BLANCO)
 
-        # Detectar eventos
+        # Detectar eventos del usuario
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 pygame.quit()
-                sys.exit()
+                sys.exit()  # Cerrar el juego
 
             elif evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1:
                 if boton_play.collidepoint(evento.pos):
                     return  # Salir del menú y comenzar el juego principal
                 elif boton_controles.collidepoint(evento.pos):
-                    mostrar_controles()
+                    mostrar_controles()  # Mostrar la pantalla de controles
                 elif boton_exit.collidepoint(evento.pos):
                     pygame.quit()
-                    sys.exit()
+                    sys.exit()  # Cerrar el juego
 
-        pygame.display.flip()
-
+        pygame.display.flip()  # Actualizar la pantalla
 
 # Fuente más pequeña y en negrita para los controles
 texto_fuente = pygame.font.SysFont("Arial", 24, bold=True)
 
-# Función para dibujar el texto con negrita
+# Función para dibujar el texto en negrita
 def dibujar_texto_negrita(surface, texto, x, y, color, fuente):
+    """
+    Función que dibuja el texto en negrita en la superficie en la posición dada.
+    """
     texto_renderizado = fuente.render(texto, True, color)
-    surface.blit(texto_renderizado, (x, y))
+    surface.blit(texto_renderizado, (x, y))  # Dibuja el texto en la posición
 
 # Función para mostrar la pantalla de controles
 def mostrar_controles():
+    """
+    Función que muestra la pantalla de controles con instrucciones para el jugador.
+    El jugador puede regresar al menú con la tecla ESC o haciendo clic en un botón.
+    """
     mostrando = True
     while mostrando:
-        pantalla.fill(NEGRO)
+        pantalla.fill(NEGRO)  # Fondo negro
 
-        # Dibujar el título de la sección de controles alineado a la izquierda
+        # Dibujar el título de la sección de controles
         dibujar_texto_negrita(pantalla, "CONTROLES", 20, 50, AZUL, titulo_fuente)
 
-        # Dibujar imagen de controles con el mismo tamaño de la ventana
+        # Dibujar imagen de controles
         pantalla.blit(imagen_controles, (0, 0))  # Aquí no se escala, se coloca tal cual
 
         # Instrucciones de controles
         instrucciones = [
             ("Mover: Flecha derecha / Flecha izquierda", (20, 150)),
-            ("Pausar: ESC", (20, 200)),
             ("Disparar: Barra espaciadora", (20, 250))
         ]
         
-        # Organizar el texto de forma más clara, con mayor separación
+        # Colocar las instrucciones con mayor separación entre ellas
         espacio = 50  # Espacio entre líneas
         for i, (texto, pos) in enumerate(instrucciones):
-            # Colocar el texto con el índice (i) para separar mejor las instrucciones
+            # Colocar el texto con un índice para organizar mejor las instrucciones
             dibujar_texto_negrita(pantalla, texto, pos[0], pos[1] + i * espacio, BLANCO, texto_fuente)
 
-        # Dibujar el botón para regresar más abajo
-        boton_regresar = pygame.Rect(pantalla.get_width() // 2 - 100, 420, 200, 50)  # Ajuste en la posición vertical
+        # Dibujar el botón para regresar al menú
+        boton_regresar = pygame.Rect(pantalla.get_width() // 2 - 100, 420, 200, 50)
         dibujar_boton_con_neon(pantalla, boton_regresar, "Regresar (Esc)", VIOLETA, BLANCO)
 
-        # Detectar eventos
+        # Detectar eventos del usuario
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 pygame.quit()
-                sys.exit()
+                sys.exit()  # Cerrar el juego
             elif evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1:
                 if boton_regresar.collidepoint(evento.pos):
-                    mostrando = False
+                    mostrando = False  # Regresar al menú principal
             elif evento.type == pygame.KEYDOWN:
                 if evento.key == pygame.K_ESCAPE:
-                    mostrando = False
+                    mostrando = False  # Regresar al menú principal
 
-        pygame.display.flip()
-
-
+        pygame.display.flip()  # Actualizar la pantalla
 
 # Llamar al menú principal antes de iniciar el juego
 menu_principal()
 
 
-# Aquí comienza el juego principal, reemplaza con el código existente del juego
-# Por ejemplo:
 def juego_principal():
     print("Ejecutando juego principal...")
 
@@ -202,7 +212,16 @@ sonido_ambiente.set_volume(0.6)  # Sonido ambiente mucho más bajo
 
 # Clases del juego
 class Jugador(pygame.sprite.Sprite):
+    """
+    Clase que representa al jugador en el juego.
+
+    Métodos:
+        __init__: Inicializa la nave del jugador.
+        update: Actualiza la posición de la nave en base a las teclas presionadas.
+        disparar: Dispara una bala desde la posición de la nave.
+    """
     def __init__(self):
+        """Inicializa la nave del jugador y su posición inicial."""
         super().__init__()
         self.image = pygame.transform.scale(jugador_img, (50, 50))
         self.rect = self.image.get_rect()
@@ -211,6 +230,10 @@ class Jugador(pygame.sprite.Sprite):
         self.velocidad = 5
 
     def update(self):
+        """
+        Actualiza la posición de la nave en la pantalla según las teclas presionadas.
+        La nave se mueve a la izquierda y derecha dentro de los límites de la pantalla.
+        """
         teclas = pygame.key.get_pressed()
         if teclas[pygame.K_LEFT] and self.rect.left > 0:
             self.rect.x -= self.velocidad
@@ -218,13 +241,26 @@ class Jugador(pygame.sprite.Sprite):
             self.rect.x += self.velocidad
 
     def disparar(self):
+        """
+        Dispara una bala desde la posición de la nave del jugador.
+        La bala se agrega a los grupos correspondientes y se reproduce el sonido de disparo.
+        """
         bala = Bala(self.rect.centerx, self.rect.top)
         todas_las_sprites.add(bala)
         balas.add(bala)
-        sonido_disparo.play()  # Reproducir sonido de disparo
+        sonido_disparo.play()
+
 
 class Enemigo(pygame.sprite.Sprite):
+    """
+    Clase que representa a un enemigo en el juego.
+
+    Métodos:
+        __init__: Inicializa al enemigo en una posición aleatoria.
+        update: Mueve al enemigo y lo hace rebotar al llegar a los bordes de la pantalla.
+    """
     def __init__(self):
+        """Inicializa el enemigo en una posición aleatoria con una velocidad de movimiento."""
         super().__init__()
         self.image = pygame.transform.scale(enemigo_img, (90, 90))
         self.rect = self.image.get_rect()
@@ -234,22 +270,33 @@ class Enemigo(pygame.sprite.Sprite):
         self.velocidad_x = random.choice([-1, 1]) * random.uniform(0.5, 2)
 
     def update(self):
+        """
+        Actualiza la posición del enemigo. Se mueve verticalmente y rebota horizontalmente
+        en los bordes de la pantalla.
+        """
         self.rect.y += self.velocidad_y
         self.rect.x += self.velocidad_x
 
-        # Rebotar en los bordes
         if self.rect.left <= 0 or self.rect.right >= ANCHO:
             self.velocidad_x *= -1
 
-        # Reiniciar si salen de la pantalla
         if self.rect.top > ALTO:
             self.rect.x = random.randint(0, ANCHO - self.rect.width)
             self.rect.y = random.randint(-100, -40)
             self.velocidad_y = random.randint(1, 5)
             self.velocidad_x = random.choice([-1, 1]) * random.uniform(0.5, 2)
 
+
 class Bala(pygame.sprite.Sprite):
+    """
+    Clase que representa una bala disparada por el jugador.
+
+    Métodos:
+        __init__: Inicializa la bala en la posición proporcionada.
+        update: Mueve la bala hacia arriba y la elimina si sale de la pantalla.
+    """
     def __init__(self, x, y):
+        """Inicializa la bala en la posición (x, y) y establece su velocidad."""
         super().__init__()
         self.image = pygame.transform.scale(bala_img, (30, 30))
         self.rect = self.image.get_rect()
@@ -257,34 +304,54 @@ class Bala(pygame.sprite.Sprite):
         self.velocidad_y = -10
 
     def update(self):
+        """
+        Mueve la bala hacia arriba y la elimina si sale de la pantalla.
+        """
         self.rect.y += self.velocidad_y
         if self.rect.bottom < 0:
             self.kill()
 
+
 class Boss(pygame.sprite.Sprite):
+    """
+    Clase que representa al jefe final en el juego.
+
+    Métodos:
+        __init__: Inicializa al jefe con su imagen, posición y vida.
+        update: Mueve al jefe y gestiona su disparo.
+        disparar: Dispara varias balas desde la posición del jefe.
+        recibir_impacto: Reduce la vida del jefe al recibir un impacto.
+    """
     def __init__(self):
+        """Inicializa al jefe con su imagen, posición y atributos como vida y velocidad."""
         super().__init__()
         self.image = pygame.transform.scale(boss_img, (200, 200))
         self.rect = self.image.get_rect()
         self.rect.centerx = ANCHO // 2
         self.rect.top = 10
         self.velocidad_x = 3
-        self.vida = 30  # Ajustado a 30 impactos
-        self.tiempo_disparo = random.randint(300, 700)  # Tiempo aleatorio entre 300 y 700 ms
+        self.vida = 30
+        self.tiempo_disparo = random.randint(300, 700)
         self.tiempo_ultimo_disparo = pygame.time.get_ticks()
 
     def update(self):
+        """
+        Actualiza la posición del jefe y gestiona su disparo aleatorio.
+        Si el jefe toca los bordes de la pantalla, rebota.
+        """
         self.rect.x += self.velocidad_x
         if self.rect.left <= 0 or self.rect.right >= ANCHO:
             self.velocidad_x *= -1
 
-        # Disparar de forma aleatoria
         if pygame.time.get_ticks() - self.tiempo_ultimo_disparo >= self.tiempo_disparo:
             self.disparar()
             self.tiempo_ultimo_disparo = pygame.time.get_ticks()
-            self.tiempo_disparo = random.randint(300, 700)  # Cambiar el tiempo de disparo para el siguiente
+            self.tiempo_disparo = random.randint(300, 700)
 
     def disparar(self):
+        """
+        Dispara varias balas desde la posición del jefe.
+        """
         for _ in range(4):
             x = random.randint(self.rect.left, self.rect.right)
             bala = BalaBoss(x, self.rect.bottom)
@@ -293,12 +360,24 @@ class Boss(pygame.sprite.Sprite):
             sonido_boss_disparo.play()
 
     def recibir_impacto(self):
+        """
+        Reduce la vida del jefe en 1. Si la vida llega a 0, elimina al jefe.
+        """
         self.vida -= 1
         if self.vida <= 0:
-            self.kill()  # Eliminar al jefe del juego
+            self.kill()
+
 
 class BalaBoss(pygame.sprite.Sprite):
+    """
+    Clase que representa una bala disparada por el jefe.
+
+    Métodos:
+        __init__: Inicializa la bala en la posición proporcionada.
+        update: Mueve la bala hacia abajo y la elimina si sale de la pantalla.
+    """
     def __init__(self, x, y):
+        """Inicializa la bala del jefe en la posición (x, y) y establece su velocidad."""
         super().__init__()
         self.image = pygame.transform.scale(bala_boss_img, (15, 30))
         self.rect = self.image.get_rect()
@@ -306,15 +385,23 @@ class BalaBoss(pygame.sprite.Sprite):
         self.velocidad_y = 5
 
     def update(self):
+        """
+        Mueve la bala hacia abajo y la elimina si sale de la pantalla.
+        """
         self.rect.y += self.velocidad_y
         if self.rect.top > ALTO:
             self.kill()
 
-# Función para manejar enemigos
+
 def actualizar_enemigos():
+    """
+    Función que actualiza los enemigos en un hilo separado.
+    Cada enemigo se mueve y se actualiza en intervalos regulares.
+    """
     while ejecutando:
         enemigos.update()
         pygame.time.delay(30)  # Controla la velocidad del hilo
+
 
 
 # Función para mostrar mensaje de fin de juego
@@ -535,6 +622,8 @@ while ejecutando:
             sonido_game_over_reproducido = False  # Restablecer el estado para permitir que el sonido se reproduzca la próxima vez
 
         elif tecla[pygame.K_ESCAPE]:  # Volver al menú principal
+            usuario = Usuario()
+            usuario.guardarPuntaje(nombreUsuario,puntuacion)
             menu_principal()
             reiniciar_juego()  # Reinicia las variables del juego
             jugando = True
