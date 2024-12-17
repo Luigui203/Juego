@@ -245,10 +245,17 @@ class Jugador(pygame.sprite.Sprite):
         Dispara una bala desde la posición de la nave del jugador.
         La bala se agrega a los grupos correspondientes y se reproduce el sonido de disparo.
         """
+        # Crear la bala en la posición de la nave
         bala = Bala(self.rect.centerx, self.rect.top)
         todas_las_sprites.add(bala)
         balas.add(bala)
+
+        # Reiniciar el sonido
+        if sonido_disparo.get_num_channels() > 0:  # Verifica si el sonido se está reproduciendo
+            sonido_disparo.stop()
+        
         sonido_disparo.play()
+
 
 
 class Enemigo(pygame.sprite.Sprite):
@@ -357,7 +364,13 @@ class Boss(pygame.sprite.Sprite):
             bala = BalaBoss(x, self.rect.bottom)
             todas_las_sprites.add(bala)
             balas_boss.add(bala)
+
+            # Reiniciar el sonido antes de reproducirlo
+            if sonido_boss_disparo.get_num_channels() > 0:  # Verifica si el sonido está sonando
+                sonido_boss_disparo.stop()
+            
             sonido_boss_disparo.play()
+
 
     def recibir_impacto(self):
         """
